@@ -25,13 +25,13 @@ path = "Source/lib.rs"
 categories = ["gui"]
 description = "Menu Utilities for Desktop Applications"
 documentation = "https://docs.rs/muda"
-edition = "2021"
+edition = "2024"
 keywords = ["windowing", "menu"]
 license-file = "LICENSE"
 name = "muda"
 readme = "README.md"
 repository = "https://github.com/amrbashir/muda"
-rust-version = "1.71"
+rust-version = "1.85.0"
 version = "0.15.3"
 
 [target]
