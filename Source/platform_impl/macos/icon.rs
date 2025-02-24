@@ -2,68 +2,63 @@
 // SPDX-License-Identifier: Apache-2.0
 // SPDX-License-Identifier: MIT
 
-use std::io::Cursor;
-
-use objc2::{ClassType, rc::Retained};
+use objc2::{rc::Retained, AllocAnyThread};
 use objc2_app_kit::NSImage;
-use objc2_foundation::{CGFloat, NSData, NSSize};
+use objc2_core_foundation::CGFloat;
+use objc2_foundation::{NSData, NSSize};
 
 use crate::icon::{BadIcon, RgbaIcon};
+use std::io::Cursor;
 
 #[derive(Debug, Clone)]
 pub struct PlatformIcon(RgbaIcon);
 
 impl PlatformIcon {
-	pub fn from_rgba(rgba:Vec<u8>, width:u32, height:u32) -> Result<Self, BadIcon> {
-		Ok(PlatformIcon(RgbaIcon::from_rgba(rgba, width, height)?))
-	}
+    pub fn from_rgba(rgba: Vec<u8>, width: u32, height: u32) -> Result<Self, BadIcon> {
+        Ok(PlatformIcon(RgbaIcon::from_rgba(rgba, width, height)?))
+    }
 
-	pub fn get_size(&self) -> (u32, u32) { (self.0.width, self.0.height) }
+    pub fn get_size(&self) -> (u32, u32) {
+        (self.0.width, self.0.height)
+    }
 
-	pub fn to_png(&self) -> Vec<u8> {
-		let mut png = Vec::new();
+    pub fn to_png(&self) -> Vec<u8> {
+        let mut png = Vec::new();
 
-		{
-			let mut encoder =
-				png::Encoder::new(Cursor::new(&mut png), self.0.width as _, self.0.height as _);
+        {
+            let mut encoder =
+                png::Encoder::new(Cursor::new(&mut png), self.0.width as _, self.0.height as _);
+            encoder.set_color(png::ColorType::Rgba);
+            encoder.set_depth(png::BitDepth::Eight);
 
-			encoder.set_color(png::ColorType::Rgba);
+            let mut writer = encoder.write_header().unwrap();
+            writer.write_image_data(&self.0.rgba).unwrap();
+        }
 
-			encoder.set_depth(png::BitDepth::Eight);
+        png
+    }
 
-			let mut writer = encoder.write_header().unwrap();
+    pub fn to_nsimage(&self, fixed_height: Option<f64>) -> Retained<NSImage> {
+        let (width, height) = self.get_size();
+        let icon = self.to_png();
 
-			writer.write_image_data(&self.0.rgba).unwrap();
-		}
+        let (icon_width, icon_height) = match fixed_height {
+            Some(fixed_height) => {
+                let icon_height: CGFloat = fixed_height as CGFloat;
+                let icon_width: CGFloat = (width as CGFloat) / (height as CGFloat / icon_height);
 
-		png
-	}
+                (icon_width, icon_height)
+            }
 
-	pub fn to_nsimage(&self, fixed_height:Option<f64>) -> Retained<NSImage> {
-		let (width, height) = self.get_size();
+            None => (width as CGFloat, height as CGFloat),
+        };
 
-		let icon = self.to_png();
+        let nsdata = NSData::with_bytes(&icon);
 
-		let (icon_width, icon_height) = match fixed_height {
-			Some(fixed_height) => {
-				let icon_height:CGFloat = fixed_height as CGFloat;
+        let nsimage = NSImage::initWithData(NSImage::alloc(), &nsdata).unwrap();
+        let new_size = NSSize::new(icon_width, icon_height);
+        unsafe { nsimage.setSize(new_size) };
 
-				let icon_width:CGFloat = (width as CGFloat) / (height as CGFloat / icon_height);
-
-				(icon_width, icon_height)
-			},
-
-			None => (width as CGFloat, height as CGFloat),
-		};
-
-		let nsdata = NSData::with_bytes(&icon);
-
-		let nsimage = NSImage::initWithData(NSImage::alloc(), &nsdata).unwrap();
-
-		let new_size = NSSize::new(icon_width, icon_height);
-
-		unsafe { nsimage.setSize(new_size) };
-
-		nsimage
-	}
+        nsimage
+    }
 }
