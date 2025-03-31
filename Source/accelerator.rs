@@ -31,13 +31,15 @@ use std::{borrow::Borrow, hash::Hash, str::FromStr};
 pub use keyboard_types::{Code, Modifiers};
 
 #[cfg(target_os = "macos")]
-pub const CMD_OR_CTRL:Modifiers = Modifiers::SUPER;
+pub const CMD_OR_CTRL: Modifiers = Modifiers::SUPER;
 #[cfg(not(target_os = "macos"))]
-pub const CMD_OR_CTRL:Modifiers = Modifiers::CONTROL;
+pub const CMD_OR_CTRL: Modifiers = Modifiers::CONTROL;
 
 #[derive(thiserror::Error, Debug)]
 pub enum AcceleratorParseError {
-	#[error("Couldn't recognize \"{0}\" as a valid key for accelerator, if you feel like it should be, please report this to https://github.com/tauri-apps/muda")]
+	#[error(
+		"Couldn't recognize \"{0}\" as a valid key for accelerator, if you feel like it should be, please report this to https://github.com/tauri-apps/muda"
+	)]
 	UnsupportedKey(String),
 	#[error("Found empty token while parsing accelerator: {0}")]
 	EmptyToken(String),
@@ -54,16 +56,16 @@ pub enum AcceleratorParseError {
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Accelerator {
-	pub(crate) mods:Modifiers,
-	pub(crate) key:Code,
-	id:u32,
+	pub(crate) mods: Modifiers,
+	pub(crate) key: Code,
+	id: u32,
 }
 
 impl Accelerator {
 	/// Creates a new accelerator to define keyboard shortcuts throughout your
 	/// application. Only [`Modifiers::ALT`], [`Modifiers::SHIFT`],
 	/// [`Modifiers::CONTROL`], and [`Modifiers::SUPER`]
-	pub fn new(mods:Option<Modifiers>, key:Code) -> Self {
+	pub fn new(mods: Option<Modifiers>, key: Code) -> Self {
 		let mut mods = mods.unwrap_or_else(Modifiers::empty);
 
 		if mods.contains(Modifiers::META) {
@@ -77,7 +79,7 @@ impl Accelerator {
 		Self { mods, key, id }
 	}
 
-	fn generate_hash(mods:Modifiers, key:Code) -> u32 {
+	fn generate_hash(mods: Modifiers, key: Code) -> u32 {
 		let mut accelerator_str = String::new();
 
 		if mods.contains(Modifiers::SHIFT) {
@@ -108,17 +110,23 @@ impl Accelerator {
 	/// Returns the id associated with this accelerator
 	/// which is a hash of the string representation of modifiers and key within
 	/// this accelerator.
-	pub fn id(&self) -> u32 { self.id }
+	pub fn id(&self) -> u32 {
+		self.id
+	}
 
 	/// Returns the modifier for this accelerator
-	pub fn modifiers(&self) -> Modifiers { self.mods }
+	pub fn modifiers(&self) -> Modifiers {
+		self.mods
+	}
 
 	/// Returns the code for this accelerator
-	pub fn key(&self) -> Code { self.key }
+	pub fn key(&self) -> Code {
+		self.key
+	}
 
 	/// Returns `true` if this [`Code`] and [`Modifiers`] matches this
 	/// `Accelerator`.
-	pub fn matches(&self, modifiers:impl Borrow<Modifiers>, key:impl Borrow<Code>) -> bool {
+	pub fn matches(&self, modifiers: impl Borrow<Modifiers>, key: impl Borrow<Code>) -> bool {
 		// Should be a const but const bit_or doesn't work here.
 		let base_mods = Modifiers::SHIFT | Modifiers::CONTROL | Modifiers::ALT | Modifiers::SUPER;
 
@@ -133,7 +141,7 @@ impl Accelerator {
 impl FromStr for Accelerator {
 	type Err = AcceleratorParseError;
 
-	fn from_str(accelerator_string:&str) -> Result<Self, Self::Err> {
+	fn from_str(accelerator_string: &str) -> Result<Self, Self::Err> {
 		parse_accelerator(accelerator_string)
 	}
 }
@@ -141,16 +149,20 @@ impl FromStr for Accelerator {
 impl TryFrom<&str> for Accelerator {
 	type Error = AcceleratorParseError;
 
-	fn try_from(value:&str) -> Result<Self, Self::Error> { parse_accelerator(value) }
+	fn try_from(value: &str) -> Result<Self, Self::Error> {
+		parse_accelerator(value)
+	}
 }
 
 impl TryFrom<String> for Accelerator {
 	type Error = AcceleratorParseError;
 
-	fn try_from(value:String) -> Result<Self, Self::Error> { parse_accelerator(&value) }
+	fn try_from(value: String) -> Result<Self, Self::Error> {
+		parse_accelerator(&value)
+	}
 }
 
-fn parse_accelerator(accelerator:&str) -> Result<Accelerator, AcceleratorParseError> {
+fn parse_accelerator(accelerator: &str) -> Result<Accelerator, AcceleratorParseError> {
 	let tokens = accelerator.split('+').collect::<Vec<&str>>();
 
 	let mut mods = Modifiers::empty();
@@ -217,7 +229,7 @@ fn parse_accelerator(accelerator:&str) -> Result<Accelerator, AcceleratorParseEr
 	Ok(Accelerator::new(Some(mods), key))
 }
 
-fn parse_key(key:&str) -> Result<Code, AcceleratorParseError> {
+fn parse_key(key: &str) -> Result<Code, AcceleratorParseError> {
 	use Code::*;
 
 	match key.to_uppercase().as_str() {
@@ -350,59 +362,38 @@ fn test_parse_accelerator() {
 		};
 	}
 
-	assert_parse_accelerator!(
-		"KeyX",
-		Accelerator { mods:Modifiers::empty(), key:Code::KeyX, id:0 }
-	);
+	assert_parse_accelerator!("KeyX", Accelerator { mods: Modifiers::empty(), key: Code::KeyX, id: 0 });
 
-	assert_parse_accelerator!(
-		"CTRL+KeyX",
-		Accelerator { mods:Modifiers::CONTROL, key:Code::KeyX, id:0 }
-	);
+	assert_parse_accelerator!("CTRL+KeyX", Accelerator { mods: Modifiers::CONTROL, key: Code::KeyX, id: 0 });
 
-	assert_parse_accelerator!(
-		"SHIFT+KeyC",
-		Accelerator { mods:Modifiers::SHIFT, key:Code::KeyC, id:0 }
-	);
+	assert_parse_accelerator!("SHIFT+KeyC", Accelerator { mods: Modifiers::SHIFT, key: Code::KeyC, id: 0 });
 
-	assert_parse_accelerator!(
-		"SHIFT+KeyC",
-		Accelerator { mods:Modifiers::SHIFT, key:Code::KeyC, id:0 }
-	);
+	assert_parse_accelerator!("SHIFT+KeyC", Accelerator { mods: Modifiers::SHIFT, key: Code::KeyC, id: 0 });
 
 	assert_parse_accelerator!(
 		"super+ctrl+SHIFT+alt+ArrowUp",
 		Accelerator {
-			mods:Modifiers::SUPER | Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT,
-			key:Code::ArrowUp,
-			id:0,
+			mods: Modifiers::SUPER | Modifiers::CONTROL | Modifiers::SHIFT | Modifiers::ALT,
+			key: Code::ArrowUp,
+			id: 0,
 		}
 	);
 
-	assert_parse_accelerator!(
-		"Digit5",
-		Accelerator { mods:Modifiers::empty(), key:Code::Digit5, id:0 }
-	);
+	assert_parse_accelerator!("Digit5", Accelerator { mods: Modifiers::empty(), key: Code::Digit5, id: 0 });
 
-	assert_parse_accelerator!(
-		"KeyG",
-		Accelerator { mods:Modifiers::empty(), key:Code::KeyG, id:0 }
-	);
+	assert_parse_accelerator!("KeyG", Accelerator { mods: Modifiers::empty(), key: Code::KeyG, id: 0 });
 
-	assert_parse_accelerator!(
-		"SHiFT+F12",
-		Accelerator { mods:Modifiers::SHIFT, key:Code::F12, id:0 }
-	);
+	assert_parse_accelerator!("SHiFT+F12", Accelerator { mods: Modifiers::SHIFT, key: Code::F12, id: 0 });
 
 	assert_parse_accelerator!(
 		"CmdOrCtrl+Space",
 		Accelerator {
 			#[cfg(target_os = "macos")]
-			mods:Modifiers::SUPER,
+			mods: Modifiers::SUPER,
 			#[cfg(not(target_os = "macos"))]
-			mods:Modifiers::CONTROL,
-			key:Code::Space,
-			id:0,
+			mods: Modifiers::CONTROL,
+			key: Code::Space,
+			id: 0,
 		}
 	);
 }
@@ -423,11 +414,5 @@ fn test_equality() {
 
 	assert!(h1 == h2 && h2 == h3 && h3 != h4 && h4 == h5 && h5 != h6);
 
-	assert!(
-		h1.id() == h2.id()
-			&& h2.id() == h3.id()
-			&& h3.id() != h4.id()
-			&& h4.id() == h5.id()
-			&& h5.id() != h6.id()
-	);
+	assert!(h1.id() == h2.id() && h2.id() == h3.id() && h3.id() != h4.id() && h4.id() == h5.id() && h5.id() != h6.id());
 }

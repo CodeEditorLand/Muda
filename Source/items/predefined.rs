@@ -7,10 +7,7 @@ use std::{cell::RefCell, mem, rc::Rc};
 use keyboard_types::{Code, Modifiers};
 
 use crate::{
-	AboutMetadata,
-	IsMenuItem,
-	MenuId,
-	MenuItemKind,
+	AboutMetadata, IsMenuItem, MenuId, MenuItemKind,
 	accelerator::{Accelerator, CMD_OR_CTRL},
 	sealed::IsMenuItemBase,
 };
@@ -19,17 +16,23 @@ use crate::{
 /// by this crate.
 #[derive(Clone)]
 pub struct PredefinedMenuItem {
-	pub(crate) id:Rc<MenuId>,
-	pub(crate) inner:Rc<RefCell<crate::platform_impl::MenuChild>>,
+	pub(crate) id: Rc<MenuId>,
+	pub(crate) inner: Rc<RefCell<crate::platform_impl::MenuChild>>,
 }
 
 impl IsMenuItemBase for PredefinedMenuItem {}
 impl IsMenuItem for PredefinedMenuItem {
-	fn kind(&self) -> MenuItemKind { MenuItemKind::Predefined(self.clone()) }
+	fn kind(&self) -> MenuItemKind {
+		MenuItemKind::Predefined(self.clone())
+	}
 
-	fn id(&self) -> &MenuId { self.id() }
+	fn id(&self) -> &MenuId {
+		self.id()
+	}
 
-	fn into_id(self) -> MenuId { self.into_id() }
+	fn into_id(self) -> MenuId {
+		self.into_id()
+	}
 }
 
 impl PredefinedMenuItem {
@@ -39,22 +42,22 @@ impl PredefinedMenuItem {
 	}
 
 	/// Copy menu item
-	pub fn copy(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn copy(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Copy, text)
 	}
 
 	/// Cut menu item
-	pub fn cut(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn cut(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Cut, text)
 	}
 
 	/// Paste menu item
-	pub fn paste(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn paste(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Paste, text)
 	}
 
 	/// SelectAll menu item
-	pub fn select_all(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn select_all(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::SelectAll, text)
 	}
 
@@ -63,7 +66,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn undo(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn undo(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Undo, text)
 	}
 
@@ -72,7 +75,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn redo(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn redo(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Redo, text)
 	}
 
@@ -81,7 +84,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn minimize(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn minimize(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Minimize, text)
 	}
 
@@ -90,7 +93,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn maximize(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn maximize(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Maximize, text)
 	}
 
@@ -99,7 +102,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn fullscreen(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn fullscreen(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Fullscreen, text)
 	}
 
@@ -108,7 +111,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn hide(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn hide(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Hide, text)
 	}
 
@@ -117,7 +120,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn hide_others(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn hide_others(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::HideOthers, text)
 	}
 
@@ -126,7 +129,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn show_all(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn show_all(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::ShowAll, text)
 	}
 
@@ -135,7 +138,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn close_window(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn close_window(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::CloseWindow, text)
 	}
 
@@ -144,12 +147,12 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Linux:** Unsupported.
-	pub fn quit(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn quit(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Quit, text)
 	}
 
 	/// About app menu item
-	pub fn about(text:Option<&str>, metadata:Option<AboutMetadata>) -> PredefinedMenuItem {
+	pub fn about(text: Option<&str>, metadata: Option<AboutMetadata>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::About(metadata), text)
 	}
 
@@ -158,7 +161,7 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn services(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn services(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::Services, text)
 	}
 
@@ -167,27 +170,30 @@ impl PredefinedMenuItem {
 	/// ## Platform-specific:
 	///
 	/// - **Windows / Linux:** Unsupported.
-	pub fn bring_all_to_front(text:Option<&str>) -> PredefinedMenuItem {
+	pub fn bring_all_to_front(text: Option<&str>) -> PredefinedMenuItem {
 		PredefinedMenuItem::new(PredefinedMenuItemType::BringAllToFront, text)
 	}
 
-	fn new<S:AsRef<str>>(item:PredefinedMenuItemType, text:Option<S>) -> Self {
-		let item = crate::platform_impl::MenuChild::new_predefined(
-			item,
-			text.map(|t| t.as_ref().to_string()),
-		);
+	fn new<S: AsRef<str>>(item: PredefinedMenuItemType, text: Option<S>) -> Self {
+		let item = crate::platform_impl::MenuChild::new_predefined(item, text.map(|t| t.as_ref().to_string()));
 
-		Self { id:Rc::new(item.id().clone()), inner:Rc::new(RefCell::new(item)) }
+		Self { id: Rc::new(item.id().clone()), inner: Rc::new(RefCell::new(item)) }
 	}
 
 	/// Returns a unique identifier associated with this predefined menu item.
-	pub fn id(&self) -> &MenuId { &self.id }
+	pub fn id(&self) -> &MenuId {
+		&self.id
+	}
 
 	/// Get the text for this predefined menu item.
-	pub fn text(&self) -> String { self.inner.borrow().text() }
+	pub fn text(&self) -> String {
+		self.inner.borrow().text()
+	}
 
 	/// Set the text for this predefined menu item.
-	pub fn set_text<S:AsRef<str>>(&self, text:S) { self.inner.borrow_mut().set_text(text.as_ref()) }
+	pub fn set_text<S: AsRef<str>>(&self, text: S) {
+		self.inner.borrow_mut().set_text(text.as_ref())
+	}
 
 	/// Convert this menu item into its menu ID.
 	pub fn into_id(mut self) -> MenuId {
@@ -205,15 +211,14 @@ fn test_about_metadata() {
 	assert_eq!(AboutMetadata { ..Default::default() }.full_version(), None);
 
 	assert_eq!(
-		AboutMetadata { version:Some("Version: 1.inner".into()), ..Default::default() }
-			.full_version(),
+		AboutMetadata { version: Some("Version: 1.inner".into()), ..Default::default() }.full_version(),
 		Some("Version: 1.inner".into())
 	);
 
 	assert_eq!(
 		AboutMetadata {
-			version:Some("Version: 1.inner".into()),
-			short_version:Some("Universal".into()),
+			version: Some("Version: 1.inner".into()),
+			short_version: Some("Universal".into()),
 			..Default::default()
 		}
 		.full_version(),
@@ -247,7 +252,9 @@ pub(crate) enum PredefinedMenuItemType {
 }
 
 impl Default for PredefinedMenuItemType {
-	fn default() -> Self { Self::None }
+	fn default() -> Self {
+		Self::None
+	}
 }
 
 impl PredefinedMenuItemType {
@@ -291,21 +298,13 @@ impl PredefinedMenuItemType {
 			PredefinedMenuItemType::Paste => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyV)),
 			PredefinedMenuItemType::Undo => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyZ)),
 			#[cfg(target_os = "macos")]
-			PredefinedMenuItemType::Redo => {
-				Some(Accelerator::new(Some(CMD_OR_CTRL | Modifiers::SHIFT), Code::KeyZ))
-			},
+			PredefinedMenuItemType::Redo => Some(Accelerator::new(Some(CMD_OR_CTRL | Modifiers::SHIFT), Code::KeyZ)),
 			#[cfg(not(target_os = "macos"))]
 			PredefinedMenuItemType::Redo => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyY)),
-			PredefinedMenuItemType::SelectAll => {
-				Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyA))
-			},
-			PredefinedMenuItemType::Minimize => {
-				Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyM))
-			},
+			PredefinedMenuItemType::SelectAll => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyA)),
+			PredefinedMenuItemType::Minimize => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyM)),
 			#[cfg(target_os = "macos")]
-			PredefinedMenuItemType::Fullscreen => {
-				Some(Accelerator::new(Some(Modifiers::META | Modifiers::CONTROL), Code::KeyF))
-			},
+			PredefinedMenuItemType::Fullscreen => Some(Accelerator::new(Some(Modifiers::META | Modifiers::CONTROL), Code::KeyF)),
 			PredefinedMenuItemType::Hide => Some(Accelerator::new(Some(CMD_OR_CTRL), Code::KeyH)),
 			PredefinedMenuItemType::HideOthers => {
 				Some(Accelerator::new(Some(CMD_OR_CTRL | Modifiers::ALT), Code::KeyH))

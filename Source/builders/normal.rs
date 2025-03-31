@@ -7,17 +7,19 @@ use crate::{MenuId, MenuItem, accelerator::Accelerator};
 /// A builder type for [`MenuItem`]
 #[derive(Clone, Debug, Default)]
 pub struct MenuItemBuilder {
-	text:String,
-	enabled:bool,
-	id:Option<MenuId>,
-	accelerator:Option<Accelerator>,
+	text: String,
+	enabled: bool,
+	id: Option<MenuId>,
+	accelerator: Option<Accelerator>,
 }
 
 impl MenuItemBuilder {
-	pub fn new() -> Self { Default::default() }
+	pub fn new() -> Self {
+		Default::default()
+	}
 
 	/// Set the id this menu item.
-	pub fn id(mut self, id:MenuId) -> Self {
+	pub fn id(mut self, id: MenuId) -> Self {
 		self.id.replace(id);
 
 		self
@@ -26,26 +28,24 @@ impl MenuItemBuilder {
 	/// Set the text for this menu item.
 	///
 	/// See [`MenuItem::set_text`] for more info.
-	pub fn text<S:Into<String>>(mut self, text:S) -> Self {
+	pub fn text<S: Into<String>>(mut self, text: S) -> Self {
 		self.text = text.into();
 
 		self
 	}
 
 	/// Enable or disable this menu item.
-	pub fn enabled(mut self, enabled:bool) -> Self {
+	pub fn enabled(mut self, enabled: bool) -> Self {
 		self.enabled = enabled;
 
 		self
 	}
 
 	/// Set this menu item accelerator.
-	pub fn accelerator<A:TryInto<Accelerator>>(
-		mut self,
-		accelerator:Option<A>,
-	) -> crate::Result<Self>
+	pub fn accelerator<A: TryInto<Accelerator>>(mut self, accelerator: Option<A>) -> crate::Result<Self>
 	where
-		crate::Error: From<<A as TryInto<Accelerator>>::Error>, {
+		crate::Error: From<<A as TryInto<Accelerator>>::Error>,
+	{
 		self.accelerator = accelerator.map(|a| a.try_into()).transpose()?;
 
 		Ok(self)

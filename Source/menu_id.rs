@@ -7,45 +7,65 @@ pub struct MenuId(pub String);
 
 impl MenuId {
 	/// Create a new menu id.
-	pub fn new<S:AsRef<str>>(id:S) -> Self { Self(id.as_ref().to_string()) }
+	pub fn new<S: AsRef<str>>(id: S) -> Self {
+		Self(id.as_ref().to_string())
+	}
 }
 
 impl AsRef<str> for MenuId {
-	fn as_ref(&self) -> &str { self.0.as_ref() }
+	fn as_ref(&self) -> &str {
+		self.0.as_ref()
+	}
 }
 
-impl<T:ToString> From<T> for MenuId {
-	fn from(value:T) -> Self { Self::new(value.to_string()) }
+impl<T: ToString> From<T> for MenuId {
+	fn from(value: T) -> Self {
+		Self::new(value.to_string())
+	}
 }
 
 impl FromStr for MenuId {
 	type Err = Infallible;
 
-	fn from_str(s:&str) -> std::result::Result<Self, Self::Err> { Ok(Self::new(s)) }
+	fn from_str(s: &str) -> std::result::Result<Self, Self::Err> {
+		Ok(Self::new(s))
+	}
 }
 
 impl PartialEq<&str> for MenuId {
-	fn eq(&self, other:&&str) -> bool { self.0 == *other }
+	fn eq(&self, other: &&str) -> bool {
+		self.0 == *other
+	}
 }
 
 impl PartialEq<&str> for &MenuId {
-	fn eq(&self, other:&&str) -> bool { self.0 == *other }
+	fn eq(&self, other: &&str) -> bool {
+		self.0 == *other
+	}
 }
 
 impl PartialEq<String> for MenuId {
-	fn eq(&self, other:&String) -> bool { self.0 == *other }
+	fn eq(&self, other: &String) -> bool {
+		self.0 == *other
+	}
 }
 
 impl PartialEq<String> for &MenuId {
-	fn eq(&self, other:&String) -> bool { self.0 == *other }
+	fn eq(&self, other: &String) -> bool {
+		self.0 == *other
+	}
 }
 
 impl PartialEq<&String> for MenuId {
-	fn eq(&self, other:&&String) -> bool { self.0 == **other }
+	fn eq(&self, other: &&String) -> bool {
+		self.0 == **other
+	}
 }
 
 impl PartialEq<&MenuId> for MenuId {
-	fn eq(&self, other:&&MenuId) -> bool { other.0 == self.0 }
+	fn eq(&self, other: &&MenuId) -> bool {
+		other.0 == self.0
+	}
 }
 
 #[cfg(test)]
