@@ -6,17 +6,10 @@
 use std::collections::HashMap;
 
 use muda::{
-	accelerator::{Accelerator, Code, Modifiers},
-	dpi::{PhysicalPosition, Position},
-	AboutMetadata,
-	CheckMenuItem,
-	ContextMenu,
-	IconMenuItem,
-	Menu,
-	MenuEvent,
-	MenuItem,
-	PredefinedMenuItem,
-	Submenu,
+    accelerator::{Accelerator, Code, Modifiers},
+    dpi::{PhysicalPosition, Position},
+    AboutMetadata, CheckMenuItem, ContextMenu, IconMenuItem, Menu, MenuEvent, MenuItem,
+    PredefinedMenuItem, Submenu,
 };
 #[cfg(target_os = "macos")]
 use winit::platform::macos::{EventLoopBuilderExtMacOS, WindowExtMacOS};
@@ -38,7 +31,7 @@ enum AppEvent {
 fn main() {
     let mut event_loop_builder = EventLoop::<AppEvent>::with_user_event();
 
-	let menu_bar = Menu::new();
+    let menu_bar = Menu::new();
 
     // setup accelerator handler on Windows
     #[cfg(target_os = "windows")]
@@ -56,8 +49,7 @@ fn main() {
     #[cfg(target_os = "macos")]
     event_loop_builder.with_default_menu(false);
 
-		event_loop_builder.with_msg_hook(move |msg| {
-			use windows_sys::Win32::UI::WindowsAndMessaging::{TranslateAcceleratorW, MSG};
+    let event_loop = event_loop_builder.build().unwrap();
 
     // set a menu event handler that wakes up the event loop
     let proxy = event_loop.create_proxy();
@@ -280,15 +272,14 @@ fn show_context_menu(window: &Window, menu: &dyn ContextMenu, position: Option<P
     }
 }
 
-fn load_icon(path:&std::path::Path) -> muda::Icon {
-	let (icon_rgba, icon_width, icon_height) = {
-		let image = image::open(path).expect("Failed to open icon path").into_rgba8();
-
-		let (width, height) = image.dimensions();
-
-		let rgba = image.into_raw();
-		(rgba, width, height)
-	};
-
-	muda::Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
+fn load_icon(path: &std::path::Path) -> muda::Icon {
+    let (icon_rgba, icon_width, icon_height) = {
+        let image = image::open(path)
+            .expect("Failed to open icon path")
+            .into_rgba8();
+        let (width, height) = image.dimensions();
+        let rgba = image.into_raw();
+        (rgba, width, height)
+    };
+    muda::Icon::from_rgba(icon_rgba, icon_width, icon_height).expect("Failed to open icon")
 }

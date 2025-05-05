@@ -1,26 +1,18 @@
-[[bin]]
+[package]
 name = "windows-common-controls-v6"
-path = "Source/main.rs"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+muda = { path = "../../", features = ["common-controls-v6"] }
+tao = "0.28"
+image = "0.25"
+
+[target."cfg(target_os = \"windows\")".dependencies.windows-sys]
+version = "0.59"
+features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation"]
 
 [build-dependencies]
 embed-resource = "2"
-
-[dependencies]
-image = "0.25"
-muda = { path = "../../", features = ["common-controls-v6"] }
-tao = "0.28"
-
-[package]
-edition = "2024"
-name = "windows-common-controls-v6"
-version = "0.1.0"
-
-[target]
-
-[target."cfg(target_os = \"windows\")"]
-
-[target."cfg(target_os = \"windows\")".dependencies]
-
-[target."cfg(target_os = \"windows\")".dependencies.windows-sys]
-features = ["Win32_UI_WindowsAndMessaging", "Win32_Foundation"]
-version = "0.59"

@@ -10,9 +10,7 @@ use muda::{
     PredefinedMenuItem, Submenu,
 };
 #[cfg(target_os = "macos")]
-use tao::platform::macos::WindowExtMacOS;
-#[cfg(target_os = "linux")]
-use tao::platform::unix::WindowExtUnix;
+use tao::platform::macos::{EventLoopBuilderExtMacOS, WindowExtMacOS};
 #[cfg(target_os = "windows")]
 use tao::platform::windows::{EventLoopBuilderExtWindows, WindowExtWindows};
 use tao::{
@@ -21,16 +19,11 @@ use tao::{
     window::{Window, WindowBuilder},
 };
 
-enum UserEvent {
-    MenuEvent(muda::MenuEvent),
-}
-
 fn main() {
-    let mut event_loop_builder = EventLoopBuilder::<UserEvent>::with_user_event();
+    let mut event_loop_builder = EventLoopBuilder::new();
 
     let menu_bar = Menu::new();
 
-    // setup accelerator handler on Windows
     #[cfg(target_os = "windows")]
     {
         let menu_bar = menu_bar.clone();
@@ -43,14 +36,10 @@ fn main() {
             }
         });
     }
+    #[cfg(target_os = "macos")]
+    event_loop_builder.with_default_menu(false);
 
     let event_loop = event_loop_builder.build();
-
-    // set a menu event handler that wakes up the event loop
-    let proxy = event_loop.create_proxy();
-    muda::MenuEvent::set_event_handler(Some(move |event| {
-        proxy.send_event(UserEvent::MenuEvent(event));
-    }));
 
     let window = WindowBuilder::new()
         .with_title("Window 1")
@@ -84,29 +73,19 @@ fn main() {
 
     menu_bar.append_items(&[&file_m, &edit_m, &window_m]);
 
-    let custom_i_1 = MenuItem::with_id(
-        "custom-i-1",
+    let custom_i_1 = MenuItem::new(
         "C&ustom 1",
         true,
         Some(Accelerator::new(Some(Modifiers::ALT), Code::KeyC)),
     );
 
-    let path = concat!(env!("CARGO_MANIFEST_DIR"), "/examples/icon.png");
+    let path = concat!(env!("CARGO_MANIFEST_DIR"), "../../icon.png");
     let icon = load_icon(std::path::Path::new(path));
-    let image_item = IconMenuItem::with_id(
-        "image-custom-1",
-        "Image custom 1",
-        true,
-        Some(icon),
-        Some(Accelerator::new(Some(Modifiers::CONTROL), Code::KeyC)),
-    );
+    let image_item = IconMenuItem::new("Image Custom 1", true, Some(icon), None);
 
-    let check_custom_i_1 =
-        CheckMenuItem::with_id("check-custom-1", "Check Custom 1", true, true, None);
-    let check_custom_i_2 =
-        CheckMenuItem::with_id("check-custom-2", "Check Custom 2", false, true, None);
-    let check_custom_i_3 = CheckMenuItem::with_id(
-        "check-custom-3",
+    let check_custom_i_1 = CheckMenuItem::new("Check Custom 1", true, true, None);
+    let check_custom_i_2 = CheckMenuItem::new("Check Custom 2", false, true, None);
+    let check_custom_i_3 = CheckMenuItem::new(
         "Check Custom 3",
         true,
         true,
@@ -149,14 +128,14 @@ fn main() {
     edit_m.append_items(&[&copy_i, &PredefinedMenuItem::separator(), &paste_i]);
 
     #[cfg(target_os = "windows")]
-    unsafe {
-        menu_bar.init_for_hwnd(window.hwnd() as _);
-        menu_bar.init_for_hwnd(window2.hwnd() as _);
-    }
-    #[cfg(target_os = "linux")]
     {
-        menu_bar.init_for_gtk_window(window.gtk_window(), window.default_vbox());
-        menu_bar.init_for_gtk_window(window2.gtk_window(), window2.default_vbox());
+        use tao::rwh_06::*;
+        if let RawWindowHandle::Win32(handle) = window.window_handle().unwrap().as_raw() {
+            menu_bar.init_for_hwnd(handle.hwnd.get());
+        }
+        if let RawWindowHandle::Win32(handle) = window2.window_handle().unwrap().as_raw() {
+            menu_bar.init_for_hwnd(handle.hwnd.get());
+        }
     }
     #[cfg(target_os = "macos")]
     {
@@ -168,7 +147,7 @@ fn main() {
     let mut window_cursor_position = PhysicalPosition { x: 0., y: 0. };
     let mut use_window_pos = false;
 
-    event_loop.run(move |event, _, control_flow| {
+    event_loop.run(move |event, event_loop, control_flow| {
         *control_flow = ControlFlow::Wait;
 
         match event {
@@ -187,7 +166,7 @@ fn main() {
             Event::WindowEvent {
                 event:
                     WindowEvent::MouseInput {
-                        state: ElementState::Released,
+                        state: ElementState::Pressed,
                         button: MouseButton::Right,
                         ..
                     },
@@ -209,32 +188,33 @@ fn main() {
                 );
                 use_window_pos = !use_window_pos;
             }
-            Event::MainEventsCleared => {
-                window.request_redraw();
-            }
-
-            Event::UserEvent(UserEvent::MenuEvent(event)) => {
-                if event.id == custom_i_1.id() {
-                    file_m.insert(&MenuItem::new("New Menu Item", true, None), 2);
-                }
-                println!("{event:?}");
-            }
             _ => (),
         }
-    })
+
+        if let Ok(event) = menu_channel.try_recv() {
+            if event.id == custom_i_1.id() {
+                file_m.insert(&MenuItem::new("New Menu Item", true, None), 2);
+            }
+            println!("{event:?}");
+        }
+    });
 }
 
 fn show_context_menu(window: &Window, menu: &dyn ContextMenu, position: Option<Position>) {
     println!("Show context menu at position {position:?}");
     #[cfg(target_os = "windows")]
-    unsafe {
-        menu.show_context_menu_for_hwnd(window.hwnd() as _, position);
+    {
+        use tao::rwh_06::*;
+        if let RawWindowHandle::Win32(handle) = window.window_handle().unwrap().as_raw() {
+            menu.show_context_menu_for_hwnd(handle.hwnd.get(), position);
+        }
     }
-    #[cfg(target_os = "linux")]
-    menu.show_context_menu_for_gtk_window(window.gtk_window().as_ref(), position);
     #[cfg(target_os = "macos")]
-    unsafe {
-        menu.show_context_menu_for_nsview(window.ns_view() as _, position);
+    {
+        use tao::rwh_06::*;
+        if let RawWindowHandle::AppKit(handle) = window.window_handle().unwrap().as_raw() {
+            unsafe { menu.show_context_menu_for_nsview(handle.ns_view.as_ptr() as _, position) };
+        }
     }
 }
 
